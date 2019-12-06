@@ -12,25 +12,45 @@ const request = require('request');
 
 const fetchMyIP = function(callback) {
 
-  const ipAddress = `https://api.ipify.org?format=json`;
-  request(ipAddress, (error, resp, body) => {
+  const ip = `https://api.ipify.org?format=json`;
+  request(ip, (error, resp, body) => {
 
     // error can be set if invalid domain, user is offline, etc.
     if (error) return callback(error, null);
 
     // if non-200 status, assume server error
-    if (response.statusCode !== 200) {
-      callback(Error(`Status Code ${response.statusCode} when fetching IP: ${body}`), null);
+    if (resp.statusCode !== 200) {
+      callback(Error(`Status Code ${resp.statusCode} when fetching IP: ${body}`), null);
       return;
     }
-
+    console.log(ip);
     const ip = JSON.parse(body).ip;
     callback(null, ip);
   });
 };
 
 
-module.exports = { fetchMyIP };
+const fetchCoordsByIP = function(ip, callback) {
+  request(`https://ipvigilante.com/json/${ip}`, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+
+    if (response.statusCode !== 200) {
+      callback(Error(`Status Code ${response.statusCode} when fetching Coordinates for IP: ${body}`), null);
+      return;
+    }
+
+    const { latitude, longitude } = JSON.parse(body).data;
+
+    callback(null, { latitude, longitude });
+  });
+};
+
+
+module.exports = { fetchMyIP  };
+module.exports = { fetchCoordsByIP };
 
 	
 
